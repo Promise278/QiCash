@@ -173,7 +173,7 @@ the QR is the only place the preimage ever exists.
 
 ```
 Qicash/
-├── contracts/                 # Smart contracts + tests (Hardhat, Solidity 0.8.19)
+├── contracts/                 # Smart contracts + tests (Hardhat, Solidity 0.8.20)
 │   ├── contracts/
 │   │   ├── QiPayPaymentHub.sol        # Invoices, verification, attestation, disputes
 │   │   ├── QiPayVendorRegistry.sol    # Root of trust: vendor whitelist + attestor keys

@@ -1,7 +1,8 @@
 # QiPay Contracts
 
 Verification and accountability layer for QiPay campus payments, written for
-Quai Network's EVM (Solidity `0.8.19`, `evmVersion: "london"`).
+Quai Network's EVM (Solidity `0.8.20` — the buildathon cap — pinned in every
+contract, `evmVersion: "london"`).
 
 **These contracts never hold or move value.** Native QI lives on Quai's UTXO
 ledger, which smart contracts cannot receive; a contract-compatible escrow would
