@@ -1,5 +1,5 @@
 /**
- * QiPayVendorRegistry — the root of trust for the anti-QR-substitution property.
+ * QiCashVendorRegistry — the root of trust for the anti-QR-substitution property.
  *
  * If this contract can be made to hold a wrong entry, everything downstream
  * follows: a student's app will happily pay a request that resolves to an
@@ -22,15 +22,15 @@ const {
   VendorStatus,
   mkAddress,
   vendorIdOf,
-  deployQiPay,
+  deployQiCash,
 } = require("./helpers/quai");
 
-describe("QiPayVendorRegistry", function () {
+describe("QiCashVendorRegistry", function () {
   const PROFILE_A = ethers.id("profile:mama-put");
   const PROFILE_B = ethers.id("profile:print-shop");
 
   async function registryFixture() {
-    const ctx = await deployQiPay();
+    const ctx = await deployQiCash();
     return {
       ...ctx,
       vendorA: vendorIdOf("campus:unilag", "vendor:mama-put"),

@@ -1,7 +1,7 @@
 /**
- * QiPayAccessControl — roles, admin handover and the circuit breaker.
+ * QiCashAccessControl — roles, admin handover and the circuit breaker.
  *
- * Exercised through QiPayVendorRegistry (the base contract is abstract) plus the
+ * Exercised through QiCashVendorRegistry (the base contract is abstract) plus the
  * hub where cross-contract independence matters.
  *
  * The properties under test are the ones that decide who can move money-adjacent
@@ -21,10 +21,10 @@ const {
   fund,
   mkAddress,
   vendorIdOf,
-  deployQiPay,
+  deployQiCash,
 } = require("./helpers/quai");
 
-describe("QiPayAccessControl", function () {
+describe("QiCashAccessControl", function () {
   /**
    * A bare registry. The registry's own address is never validated (only the
    * hub's constructor validates the registry it is pointed at), so this can be
@@ -36,7 +36,7 @@ describe("QiPayAccessControl", function () {
     const [admin, manager, pauser, nominee, spare, spare2] = minedSigners(6);
     await fund([admin, manager, pauser, nominee, spare, spare2]);
 
-    const Registry = await ethers.getContractFactory("QiPayVendorRegistry", faucet);
+    const Registry = await ethers.getContractFactory("QiCashVendorRegistry", faucet);
     const registry = await Registry.deploy(admin.address, ZONE_CYPRUS1);
     await registry.waitForDeployment();
 
@@ -162,7 +162,7 @@ describe("QiPayAccessControl", function () {
 
     it("grants an arbitrary unused role hash without side effects", async function () {
       const { registry, admin, spare } = await loadFixture(deployRegistry);
-      const unknown = ethers.id("QiPay.NOT_A_REAL_ROLE");
+      const unknown = ethers.id("QiCash.NOT_A_REAL_ROLE");
       await registry.connect(admin).grantRole(unknown, spare.address);
       expect(await registry.hasRole(unknown, spare.address)).to.equal(true);
       // It confers nothing the contract actually checks.
@@ -501,7 +501,7 @@ describe("QiPayAccessControl", function () {
       // The two contracts each carry their own role table. A vendor manager on
       // the registry is not an arbiter on the hub, so compromising one does not
       // hand over the other.
-      const ctx = await loadFixture(deployQiPay);
+      const ctx = await loadFixture(deployQiCash);
       expect(await ctx.registry.hasRole(ROLES.VENDOR_MANAGER, ctx.vendorManager.address)).to.equal(
         true
       );
@@ -512,14 +512,14 @@ describe("QiPayAccessControl", function () {
     });
 
     it("pauses independently", async function () {
-      const ctx = await loadFixture(deployQiPay);
+      const ctx = await loadFixture(deployQiCash);
       await ctx.registry.connect(ctx.pauser).pause();
       expect(await ctx.registry.paused()).to.equal(true);
       expect(await ctx.hub.paused()).to.equal(false);
     });
 
     it("keeps admin handover separate per contract", async function () {
-      const ctx = await loadFixture(deployQiPay);
+      const ctx = await loadFixture(deployQiCash);
       await ctx.registry.connect(ctx.admin).proposeAdmin(ctx.spare.address);
       expect(await ctx.registry.pendingAdmin()).to.equal(ctx.spare.address);
       expect(await ctx.hub.pendingAdmin()).to.equal(ethers.ZeroAddress);

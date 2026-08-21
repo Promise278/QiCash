@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-interface IQiPayVendorRegistry {
+interface IQiCashVendorRegistry {
     /// @notice Lifecycle of a campus vendor.
-    /// @dev `Revoked` is terminal — see QiPayVendorRegistry for the rationale.
+    /// @dev `Revoked` is terminal — see QiCashVendorRegistry for the rationale.
     enum VendorStatus {
         None,
         Active,

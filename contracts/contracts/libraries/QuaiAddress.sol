@@ -48,7 +48,7 @@ library QuaiAddress {
     }
 
     /// @notice Reverts unless `account` is a non-zero Qi-ledger address.
-    /// @dev Use only for values that will receive native Qi off-chain. QiPay
+    /// @dev Use only for values that will receive native Qi off-chain. QiCash
     function requireQiLedger(address account) internal pure {
         if (account == address(0)) revert ZeroAddress();
         if (!isQiLedger(account)) revert NotQiLedger(account);

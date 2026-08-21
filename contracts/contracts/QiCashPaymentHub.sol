@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {QiPayAccessControl} from "./access/QiPayAccessControl.sol";
-import {IQiPayVendorRegistry} from "./interfaces/IQiPayVendorRegistry.sol";
+import {QiCashAccessControl} from "./access/QiCashAccessControl.sol";
+import {IQiCashVendorRegistry} from "./interfaces/IQiCashVendorRegistry.sol";
 import {QuaiAddress} from "./libraries/QuaiAddress.sol";
 
-contract QiPayPaymentHub is QiPayAccessControl {
+contract QiCashPaymentHub is QiCashAccessControl {
     using QuaiAddress for address;
 
 
-    // Domain tag binding a commitment to QiPay's invoice scheme.
-    bytes32 public constant COMMIT_DOMAIN = keccak256("QiPay:InvoiceCommitment:v1");
+    // Domain tag binding a commitment to QiCash's invoice scheme.
+    bytes32 public constant COMMIT_DOMAIN = keccak256("QiCash:InvoiceCommitment:v1");
 
     // Domain tag for sealed payment references.
-    bytes32 public constant SEAL_DOMAIN = keccak256("QiPay:SealedPaymentRef:v1");
+    bytes32 public constant SEAL_DOMAIN = keccak256("QiCash:SealedPaymentRef:v1");
 
     // QI exposes 16 fixed denominations, indexed 0-15.
     uint8 public constant MAX_DENOMINATION_INDEX = 15;
@@ -68,7 +68,7 @@ contract QiPayPaymentHub is QiPayAccessControl {
     }
 
     // Vendor registry consulted for authorization. Immutable: a swappable registry would let an admin repoint the root of trust and retroactively legitimise arbitrary vendors. Migration means deploying a new hub, which is visible to everyone.
-    IQiPayVendorRegistry public immutable registry;
+    IQiCashVendorRegistry public immutable registry;
 
     // keccak256(abi.encode(vendorId, commitment)) => Invoice.
     mapping(bytes32 => Invoice) private _invoices;
@@ -148,7 +148,7 @@ contract QiPayPaymentHub is QiPayAccessControl {
     error ArbiterIsComplainant(address arbiter);
     error ArbiterRepresentsVendor(bytes32 vendorId);
 
-    constructor( address initialAdmin, uint8 zone_, IQiPayVendorRegistry registry_, uint40 maxInvoiceTtl_, uint40 disputeWindow_, uint40 arbitrationDeadline_ ) QiPayAccessControl(initialAdmin, zone_) {
+    constructor( address initialAdmin, uint8 zone_, IQiCashVendorRegistry registry_, uint40 maxInvoiceTtl_, uint40 disputeWindow_, uint40 arbitrationDeadline_ ) QiCashAccessControl(initialAdmin, zone_) {
         if (address(registry_) == address(0)) revert ZeroRegistry();
         address(registry_).requireQuaiLedgerInZone(zone_);
         registry = registry_;
@@ -416,10 +416,10 @@ contract QiPayPaymentHub is QiPayAccessControl {
         vendorId = registry.vendorIdOf(caller);
         if (vendorId == bytes32(0)) revert VendorNotRecognised(caller);
 
-        IQiPayVendorRegistry.VendorStatus status = registry.vendorStatus(vendorId);
+        IQiCashVendorRegistry.VendorStatus status = registry.vendorStatus(vendorId);
         if (
-            status != IQiPayVendorRegistry.VendorStatus.Active &&
-            status != IQiPayVendorRegistry.VendorStatus.Suspended
+            status != IQiCashVendorRegistry.VendorStatus.Active &&
+            status != IQiCashVendorRegistry.VendorStatus.Suspended
         ) {
             revert VendorRevokedOrUnknown(caller);
         }

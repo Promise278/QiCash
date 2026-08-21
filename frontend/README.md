@@ -1,12 +1,12 @@
-# QiPay Frontend
+# QiCash Frontend
 
-Web dashboard for QiPay, built with **Next.js 16** (App Router), React 19 and
+Web dashboard for QiCash, built with **Next.js 16** (App Router), React 19 and
 Tailwind CSS v4.
 
 **Status: scaffold.** This app currently renders a single landing page
-(`app/page.tsx`) with no QiPay functionality wired in yet. The dashboards for
+(`app/page.tsx`) with no QiCash functionality wired in yet. The dashboards for
 vendor onboarding, reputation, and dispute administration are planned consumers
-of the QiPay contracts (see `contracts/`).
+of the QiCash contracts (see `contracts/`).
 
 ## Getting started
 

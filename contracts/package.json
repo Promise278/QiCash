@@ -6,8 +6,8 @@
     "test": "hardhat test",
     "test:gas": "REPORT_GAS=true hardhat test",
     "coverage": "hardhat coverage",
-    "deploy:orchard": "hardhat run scripts/deploy.js --network orchard",
-    "deploy:cyprus1": "hardhat run scripts/deploy.js --network cyprus1"
+    "deploy:orchard": "node scripts/deploy.js",
+    "deploy:local": "hardhat run scripts/deploy.js --network hardhat"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.2",
@@ -28,6 +28,6 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
-    "quais": "^1.0.0"
+    "quais": "^1.0.0-alpha.56"
   }
 }

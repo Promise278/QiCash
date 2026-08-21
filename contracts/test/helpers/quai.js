@@ -1,11 +1,11 @@
 /**
- * Shared test helpers for the QiPay contracts.
+ * Shared test helpers for the QiCash contracts.
  *
  * ===========================================================================
- *  WHY THIS FILE EXISTS: QiPay ADDRESSES ARE NOT ARBITRARY
+ *  WHY THIS FILE EXISTS: QiCash ADDRESSES ARE NOT ARBITRARY
  * ===========================================================================
  *
- * Every QiPay contract validates the addresses it is handed. `QuaiAddress`
+ * Every QiCash contract validates the addresses it is handed. `QuaiAddress`
  * requires privileged accounts to be Quai-ledger addresses inside the expected
  * shard, which on Cyprus-1 means:
  *
@@ -42,24 +42,20 @@ const { ethers: ethersLib } = require("ethers");
 /// Shard prefix of Cyprus-1 (region 0, zone 0) — the only active Quai zone.
 const ZONE_CYPRUS1 = 0x00;
 
-/// Domain tags. Must match QiPayPaymentHub exactly or every parity test fails.
-const COMMIT_DOMAIN = ethersLib.keccak256(
-  ethersLib.toUtf8Bytes("QiPay:InvoiceCommitment:v1")
-);
-const SEAL_DOMAIN = ethersLib.keccak256(
-  ethersLib.toUtf8Bytes("QiPay:SealedPaymentRef:v1")
-);
+/// Domain tags. Must match QiCashPaymentHub exactly or every parity test fails.
+const COMMIT_DOMAIN = ethersLib.keccak256(ethersLib.toUtf8Bytes("QiCash:InvoiceCommitment:v1"));
+const SEAL_DOMAIN = ethersLib.keccak256(ethersLib.toUtf8Bytes("QiCash:SealedPaymentRef:v1"));
 
 const ROLES = {
-  ADMIN: ethersLib.keccak256(ethersLib.toUtf8Bytes("QiPay.ADMIN")),
+  ADMIN: ethersLib.keccak256(ethersLib.toUtf8Bytes("QiCash.ADMIN")),
   VENDOR_MANAGER: ethersLib.keccak256(
-    ethersLib.toUtf8Bytes("QiPay.VENDOR_MANAGER")
+    ethersLib.toUtf8Bytes("QiCash.VENDOR_MANAGER")
   ),
-  ARBITER: ethersLib.keccak256(ethersLib.toUtf8Bytes("QiPay.ARBITER")),
-  PAUSER: ethersLib.keccak256(ethersLib.toUtf8Bytes("QiPay.PAUSER")),
+  ARBITER: ethersLib.keccak256(ethersLib.toUtf8Bytes("QiCash.ARBITER")),
+  PAUSER: ethersLib.keccak256(ethersLib.toUtf8Bytes("QiCash.PAUSER")),
 };
 
-/// Mirrors QiPayPaymentHub.InvoiceStatus.
+/// Mirrors QiCashPaymentHub.InvoiceStatus.
 const InvoiceStatus = {
   None: 0n,
   Open: 1n,
@@ -71,7 +67,7 @@ const InvoiceStatus = {
   ArbitrationExpired: 7n,
 };
 
-/// Mirrors QiPayPaymentHub.VerificationResult.
+/// Mirrors QiCashPaymentHub.VerificationResult.
 const VerificationResult = {
   Payable: 0n,
   InvoiceNotFound: 1n,
@@ -83,7 +79,7 @@ const VerificationResult = {
   ExpiryMismatch: 7n,
 };
 
-/// Mirrors IQiPayVendorRegistry.VendorStatus.
+/// Mirrors IQiCashVendorRegistry.VendorStatus.
 const VendorStatus = {
   None: 0n,
   Active: 1n,
@@ -168,7 +164,7 @@ let _deployerPool = null;
 /** Wallets whose own EOA address is a valid Cyprus-1 Quai-ledger address. */
 function minedSigners(count = 10) {
   if (!_signerPool || _signerPool.length < count) {
-    _signerPool = mineKeys("qipay/test/signer", Math.max(count, 10), (w) => w.address);
+    _signerPool = mineKeys("qicash/test/signer", Math.max(count, 10), (w) => w.address);
   }
   return _signerPool.slice(0, count).map((w) => w.connect(ethers.provider));
 }
@@ -180,7 +176,7 @@ function minedSigners(count = 10) {
  */
 function minedDeployers(count = 4) {
   if (!_deployerPool || _deployerPool.length < count) {
-    _deployerPool = mineKeys("qipay/test/deployer", Math.max(count, 4), (w) =>
+    _deployerPool = mineKeys("qicash/test/deployer", Math.max(count, 4), (w) =>
       ethersLib.getCreateAddress({ from: w.address, nonce: 0 })
     ).map((w) => w.connect(ethers.provider));
   }
@@ -245,7 +241,7 @@ async function fund(wallets, amount = ethers.parseEther("100")) {
 // ------------------------------------------------- off-chain hash reference
 
 /**
- * Independent JavaScript reimplementation of `QiPayPaymentHub.computeCommitment`.
+ * Independent JavaScript reimplementation of `QiCashPaymentHub.computeCommitment`.
  *
  * This is not a convenience wrapper — it is the assertion. The mobile app has to
  * build this hash off-chain from a scanned QR payload, so a silent divergence
@@ -289,7 +285,7 @@ function vendorIdOf(campus, slug) {
 }
 
 /** A 256-bit salt. Production must use a CSPRNG; tests need reproducibility. */
-const saltOf = (label) => ethersLib.id(`qipay/salt/${label}`);
+const saltOf = (label) => ethersLib.id(`qicash/salt/${label}`);
 
 // --------------------------------------------------------------- deployment
 
@@ -297,11 +293,11 @@ const saltOf = (label) => ethersLib.id(`qipay/salt/${label}`);
  * Deploys a registry + hub pair wired together, with roles distributed across
  * distinct accounts.
  *
- * Roles are deliberately NOT all held by one address. QiPayAccessControl makes
+ * Roles are deliberately NOT all held by one address. QiCashAccessControl makes
  * roles non-hierarchical on purpose, and a fixture that piles every role onto a
  * single account would hide any accidental privilege escalation.
  */
-async function deployQiPay({
+async function deployQiCash({
   maxInvoiceTtl = DEFAULT_MAX_TTL,
   disputeWindow = DEFAULT_DISPUTE_WINDOW,
   arbitrationDeadline = DEFAULT_ARBITRATION_DEADLINE,
@@ -319,7 +315,7 @@ async function deployQiPay({
   // `deployAtCyprus1` so re-runs under `loadFixture` (when the deployer's
   // nonce has already advanced) scan forward to the next suitable nonce
   // instead of failing.
-  const Registry = await ethers.getContractFactory("QiPayVendorRegistry", deployer);
+  const Registry = await ethers.getContractFactory("QiCashVendorRegistry", deployer);
   const registry = await deployAtCyprus1(Registry, [admin.address, ZONE_CYPRUS1], deployer);
   const registryAddress = await registry.getAddress();
 
@@ -330,7 +326,7 @@ async function deployQiPay({
     );
   }
 
-  const Hub = await ethers.getContractFactory("QiPayPaymentHub", deployer);
+  const Hub = await ethers.getContractFactory("QiCashPaymentHub", deployer);
   const hub = await Hub.deploy(
     admin.address,
     ZONE_CYPRUS1,
@@ -377,7 +373,7 @@ async function deployQiPay({
 
 /** Registry + hub with vendor A registered and Active — the common starting point. */
 async function deployWithVendor() {
-  const ctx = await deployQiPay();
+  const ctx = await deployQiCash();
   const vendorA = vendorIdOf("campus:unilag", "vendor:mama-put");
   const vendorB = vendorIdOf("campus:unilag", "vendor:print-shop");
 
@@ -440,7 +436,7 @@ module.exports = {
   invoiceKeyJs,
   vendorIdOf,
   saltOf,
-  deployQiPay,
+  deployQiCash,
   deployWithVendor,
   buildRequest,
 };

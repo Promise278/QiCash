@@ -30,11 +30,11 @@ module.exports = {
       chainId: 31337,
     },
     // Quai mainnet, Cyprus-1.
-    // cyprus1: {
-    //   url: process.env.RPC_URL || "https://rpc.quai.network/cyprus1",
-    //   chainId: 9,
-    //   accounts,
-    // },
+    cyprus1: {
+      url: process.env.RPC_URL || "https://rpc.quai.network/cyprus1",
+      chainId: 9,
+      accounts,
+    },
     // Orchard public testnet. Faucet: https://orchard.faucet.quai.network
     orchard: {
       url: process.env.RPC_URL || "https://orchard.rpc.quai.network/cyprus1",

@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.20;
 
-import {QiPayAccessControl} from "./access/QiPayAccessControl.sol";
-import {IQiPayVendorRegistry} from "./interfaces/IQiPayVendorRegistry.sol";
+import {QiCashAccessControl} from "./access/QiCashAccessControl.sol";
+import {IQiCashVendorRegistry} from "./interfaces/IQiCashVendorRegistry.sol";
 import {QuaiAddress} from "./libraries/QuaiAddress.sol";
 
-contract QiPayVendorRegistry is QiPayAccessControl, IQiPayVendorRegistry {
+contract QiCashVendorRegistry is QiCashAccessControl, IQiCashVendorRegistry {
     using QuaiAddress for address;
 
     mapping(bytes32 => Vendor) private _vendors;
@@ -46,7 +46,7 @@ contract QiPayVendorRegistry is QiPayAccessControl, IQiPayVendorRegistry {
     error NotVendorOrManager(address caller, bytes32 vendorId);
     error AlreadyInStatus(VendorStatus status);
 
-    constructor(address initialAdmin, uint8 zone_) QiPayAccessControl(initialAdmin, zone_) {}
+    constructor(address initialAdmin, uint8 zone_) QiCashAccessControl(initialAdmin, zone_) {}
 
     // Onboards a vendor. vendorId Caller-supplied identifier. Clients derive it as `keccak256(abi.encode(campusId, vendorSlug))` so it is stable and reproducible off-chain, but the registry only requires uniqueness.
     function registerVendor( bytes32 vendorId, address attestor, bytes32 metadataHash ) external onlyRole(VENDOR_MANAGER_ROLE) whenNotPaused {

@@ -2,7 +2,7 @@
  * QuaiAddress — the address-validation library every other contract depends on.
  *
  * These tests target the bit boundaries directly. A one-bit error in this
- * library is the worst kind of bug in QiPay: it either locks a role onto an
+ * library is the worst kind of bug in QiCash: it either locks a role onto an
  * address nobody can sign for, or accepts a QI payout address that silently
  * burns a student's money. Neither surfaces as a failed transaction.
  */

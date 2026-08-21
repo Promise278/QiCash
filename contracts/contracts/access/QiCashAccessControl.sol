@@ -3,13 +3,13 @@ pragma solidity 0.8.20;
 
 import {QuaiAddress} from "../libraries/QuaiAddress.sol";
 
-abstract contract QiPayAccessControl {
+abstract contract QiCashAccessControl {
     using QuaiAddress for address;
 
-    bytes32 public constant ADMIN_ROLE = keccak256("QiPay.ADMIN");
-    bytes32 public constant VENDOR_MANAGER_ROLE = keccak256("QiPay.VENDOR_MANAGER");
-    bytes32 public constant ARBITER_ROLE = keccak256("QiPay.ARBITER");
-    bytes32 public constant PAUSER_ROLE = keccak256("QiPay.PAUSER");
+    bytes32 public constant ADMIN_ROLE = keccak256("QiCash.ADMIN");
+    bytes32 public constant VENDOR_MANAGER_ROLE = keccak256("QiCash.VENDOR_MANAGER");
+    bytes32 public constant ARBITER_ROLE = keccak256("QiCash.ARBITER");
+    bytes32 public constant PAUSER_ROLE = keccak256("QiCash.PAUSER");
 
     /// @notice Shard prefix every privileged address must belong to.
     /// @dev `0x00` on Quai mainnet and Orchard, where Cyprus-1 is the only active zone. Constructor-supplied rather than derived from `address(this)` so the value is explicit and auditable.
@@ -133,7 +133,7 @@ abstract contract QiPayAccessControl {
         emit RoleGranted(ADMIN_ROLE, msg.sender, msg.sender);
     }
 
-    /// @notice Halts new invoice creation. See the pause note on QiPayPaymentHub: settlement and dispute flows stay open by design so a pause can never trap a student who has already paid.
+    /// @notice Halts new invoice creation. See the pause note on QiCashPaymentHub: settlement and dispute flows stay open by design so a pause can never trap a student who has already paid.
     function pause() external onlyRole(PAUSER_ROLE) {
         if (_paused) revert ContractPaused();
         _paused = true;

@@ -1,5 +1,5 @@
 /**
- * QiPayPaymentHub — the verification and accountability layer.
+ * QiCashPaymentHub — the verification and accountability layer.
  *
  * These are the properties a student's phone depends on, in order of risk:
  *
@@ -39,7 +39,7 @@ const {
 
 const DAY = 24 * 60 * 60;
 
-describe("QiPayPaymentHub", function () {
+describe("QiCashPaymentHub", function () {
   describe("createInvoice", function () {
     it("publishes an invoice commitment and emits it, hiding the preimage", async function () {
       const ctx = await loadFixture(deployWithVendor);
@@ -706,7 +706,7 @@ describe("QiPayPaymentHub", function () {
 
     it("rejects a zero registry at construction", async function () {
       const { deployer, admin } = await loadFixture(deployWithVendor);
-      const Hub = await ethers.getContractFactory("QiPayPaymentHub");
+      const Hub = await ethers.getContractFactory("QiCashPaymentHub");
       await expect(
         Hub.connect(deployer).deploy(admin.address, 0x00, ethers.ZeroAddress, 900, DEFAULT_DISPUTE_WINDOW, DEFAULT_ARBITRATION_DEADLINE)
       ).to.be.revertedWithCustomError(Hub, "ZeroRegistry");

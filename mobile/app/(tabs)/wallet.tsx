@@ -1,58 +1,110 @@
+import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
-import { ScrollView, Text, View } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import * as Clipboard from 'expo-clipboard';
+import { Pressable, RefreshControl, ScrollView, Text, View, Alert } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useWallet } from '../../context/WalletContext';
 
 export default function WalletScreen() {
+  const { wallet, quaiBalance, totalFiat, shortAddress, refreshBalance } = useWallet();
+  const [balanceHidden, setBalanceHidden] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refreshBalance();
+    setRefreshing(false);
+  };
+
+  const copyAddress = async (addr: string) => {
+    await Clipboard.setStringAsync(addr);
+    Alert.alert('Copied', 'QUAI address copied');
+  };
+
   return (
-    <View className="flex-1 bg-[#f3efe7] px-5 py-4">
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-6">
-        <View className="rounded-[24px] bg-[#234e45] p-4">
-          <Text className="text-[11px] uppercase tracking-[0.25em] text-[#dfeee6]">My Wallet</Text>
-          <Text className="mt-4 text-[32px] font-bold text-white">128.45 QI</Text>
-          <Text className="mt-1 text-[13px] text-[#dfeee6]">≈ $28.63</Text>
-          <View className="mt-5 rounded-[18px] bg-[#f7efe7] p-3">
-            <Text className="text-[11px] font-medium text-[#3a3a3a]">Wallet Address</Text>
-            <Text className="mt-1 text-[12px] text-[#5e665d]">0x7a3F...9c21</Text>
-          </View>
+    <SafeAreaView className="flex-1 bg-qicash-bg">
+      <StatusBar style="dark" backgroundColor="#fbf9f5" />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerClassName="px-5 pt-4 pb-24"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1f472e" />}
+      >
+        <View className="flex-row items-center justify-between">
+          <Text className="text-[15px] font-semibold text-[#1b3021]">
+            My Wallet
+          </Text>
+          <Pressable hitSlop={8} onPress={onRefresh}>
+            <MaterialIcons name="refresh" size={19} color="#1f472e" />
+          </Pressable>
         </View>
 
-        <View className="mt-5 rounded-[20px] bg-[#f7f3ee] p-3">
-          <Text className="text-[13px] font-semibold text-[#1d312c]">Manage funds</Text>
-          <View className="mt-3 gap-3">
-            {['Top Up', 'Withdraw'].map((label, idx) => (
-              <View key={label} className="flex-row items-center justify-between rounded-[16px] border border-[#e7dfd4] bg-[#fffaf4] px-3 py-3">
-                <View className="flex-row items-center gap-2">
-                  <View className="h-9 w-9 items-center justify-center rounded-[10px] bg-[#e6d5be]">
-                    <MaterialIcons name={idx === 0 ? 'add' : 'arrow-downward'} size={18} color="#234d42" />
-                  </View>
-                  <Text className="text-[12px] font-semibold text-[#1d312c]">{label}</Text>
-                </View>
-                <MaterialIcons name="chevron-right" size={18} color="#5d736d" />
+        {/* Total balance */}
+        <View className="mt-4 rounded-[15px] bg-qicash-green p-6">
+          <View className="flex-row items-center justify-between">
+            <Text className="text-2xl text-[#e9ece1]">Total Balance</Text>
+            <Pressable hitSlop={8} onPress={() => setBalanceHidden(!balanceHidden)}>
+              <MaterialIcons
+                name={balanceHidden ? 'visibility-off' : 'visibility'}
+                size={18}
+                color="#e8f0e9"
+              />
+            </Pressable>
+          </View>
+          <Text className="mt-1 text-4xl font-bold text-white">
+            {balanceHidden ? '••••••' : `${quaiBalance} QUAI`}
+          </Text>
+        </View>
+
+        {/* USD equivalent */}
+        <View className="mt-4 rounded-[14px] bg-qicash-tile p-4">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-3">
+              <View className="h-[36px] w-[36px] items-center justify-center rounded-[10px] bg-[#e8f5e9]">
+                <MaterialIcons name="account-balance" size={20} color="#1f472e" />
               </View>
-            ))}
-          </View>
-        </View>
-
-        <View className="mt-5 rounded-[20px] bg-[#f7f3ee] p-3">
-          <View className="mb-2 flex-row items-center justify-between">
-            <Text className="text-[13px] font-semibold text-[#1d312c]">History</Text>
-            <Text className="text-[11px] text-[#5d736d]">All</Text>
-          </View>
-          {[
-            ['Food Court', '-12.50 QI', 'Today · 10:21 AM'],
-            ['Bookshop', '-8.20 QI', 'Today · 9:02 AM'],
-            ['Water Vendor', '-1.30 QI', 'Yesterday · 4:45 PM'],
-            ['Received from John', '+20.00 QI', 'Yesterday · 11:11 AM'],
-          ].map(([title, amount, time]) => (
-            <View key={title} className="mt-2 flex-row items-center justify-between rounded-[14px] border border-[#e7dfd4] bg-[#fffaf4] px-3 py-2.5">
               <View>
-                <Text className="text-[12px] font-semibold text-[#1d312c]">{title}</Text>
-                <Text className="text-[10px] text-[#60736d]">{time}</Text>
+                <Text className="text-[11px] text-qicash-muted">USD Value</Text>
+                <Text className="text-[18px] font-bold text-[#1b3021]">
+                  {balanceHidden ? '••••' : totalFiat}
+                </Text>
               </View>
-              <Text className="text-[12px] font-semibold text-[#234d42]">{amount}</Text>
             </View>
+            <Pressable
+              hitSlop={8}
+              onPress={() => wallet && copyAddress(wallet.address)}
+            >
+              <MaterialIcons name="content-copy" size={17} color="#415947" />
+            </Pressable>
+          </View>
+          {shortAddress ? (
+            <Text className="mt-2 font-mono text-[9px] text-qicash-muted" numberOfLines={1}>
+              {balanceHidden ? '••••••••••••••••' : shortAddress}
+            </Text>
+          ) : null}
+        </View>
+
+        {/* Actions */}
+        <View className="mt-4 overflow-hidden rounded-[11px] bg-[#fffdfa]">
+          {[
+            { label: 'Top Up', icon: 'add-circle-outline' as const },
+            { label: 'Withdraw', icon: 'remove-circle-outline' as const },
+          ].map((action) => (
+            <Pressable
+              key={action.label}
+              className="h-[52px] flex-row items-center justify-between border-b border-qicash-line px-3"
+            >
+              <View className="flex-row items-center gap-3">
+                <MaterialIcons name={action.icon} size={20} color="#1f472e" />
+                <Text className="text-[11px] font-semibold text-[#29352b]">
+                  {action.label}
+                </Text>
+              </View>
+              <MaterialIcons name="chevron-right" size={20} color="#667067" />
+            </Pressable>
           ))}
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

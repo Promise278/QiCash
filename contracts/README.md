@@ -1,6 +1,6 @@
-# QiPay Contracts
+# QiCash Contracts
 
-Verification and accountability layer for QiPay campus payments, written for
+Verification and accountability layer for QiCash campus payments, written for
 Quai Network's EVM (Solidity `0.8.20` — the buildathon cap — pinned in every
 contract, `evmVersion: "london"`).
 
@@ -15,11 +15,11 @@ receipt.
 
 | Contract | Role |
 |----------|------|
-| `contracts/QiPayPaymentHub.sol` | Invoices (commitments), verification, settlement attestation, disputes, arbiter |
-| `contracts/QiPayVendorRegistry.sol` | Root of trust: whitelist of vendors, attestor keys, suspend / revoke / rotate |
-| `contracts/access/QiPayAccessControl.sol` | Roles, two-step admin handover, circuit breaker (pause) |
+| `contracts/QiCashPaymentHub.sol` | Invoices (commitments), verification, settlement attestation, disputes, arbiter |
+| `contracts/QiCashVendorRegistry.sol` | Root of trust: whitelist of vendors, attestor keys, suspend / revoke / rotate |
+| `contracts/access/QiCashAccessControl.sol` | Roles, two-step admin handover, circuit breaker (pause) |
 | `contracts/libraries/QuaiAddress.sol` | Quai shard / ledger-flag bit validation for addresses |
-| `contracts/interfaces/IQiPayVendorRegistry.sol` | Read surface the hub and clients consume |
+| `contracts/interfaces/IQiCashVendorRegistry.sol` | Read surface the hub and clients consume |
 
 ## The flow
 
@@ -45,19 +45,13 @@ receipt.
 
 ## Security model
 
-- **No custody**: no `receive`/`fallback`, no external calls, no reentrancy
   surface, no approvals, no HTLC. On-chain attacks are griefability, not theft.
-- **Anti QR-substitution**: a commitment must resolve to a real invoice from an
   Active vendor before the app pays.
-- **Commitments bind `chainId` and hub address** — no cross-chain or replay
   across redeployments.
-- **Storage keys are namespaced by vendor** (`keccak256(vendorId, commitment)`)
   — no commitment-squatting DoS between vendors.
-- **Privacy**: amounts and payout addresses exist only inside the commitment.
   The salt is load-bearing (campus amounts are low-entropy) and MUST be ≥128
   bits of CSPRNG randomness, fresh per invoice — the contract cannot verify
   this; the client owns it.
-- **Honest limits**: the contract cannot cryptographically prove a QI payment
   occurred — settlement attestation is self-asserted and dispute rulings are
   reputation (the contract holds no funds to refund). Disputes de-anonymize the
   transaction by design.

@@ -1,10 +1,10 @@
-# QiPay Mobile
+# QiCash Mobile
 
-Student and vendor payment app for QiPay, built with **Expo 54**,
+Student and vendor payment app for QiCash, built with **Expo 54**,
 **expo-router** and **NativeWind** (Tailwind CSS for React Native).
 
 **Status: scaffold.** The app currently consists of the default Expo tabs —
-home, explore, profile, wallet — plus a modal. None of the QiPay SDK (QR
+home, explore, profile, wallet — plus a modal. None of the QiCash SDK (QR
 generation, commitment computation, `eth_call` verification, native QI payment)
 is wired in yet. That is the next build step; the contracts it must talk to are
 finished and tested in `contracts/`.
@@ -59,7 +59,7 @@ confirmation.
 
 ## Security notes for the SDK work
 
-The mobile app is where QiPay's privacy and anti-fraud properties actually live:
+The mobile app is where QiCash's privacy and anti-fraud properties actually live:
 
 - Always call `verifyPaymentRequest` as a **read**; sending it as a transaction
   publishes the preimage to public calldata.

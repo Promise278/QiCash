@@ -1,14 +1,14 @@
-# QiPay
+# QiCash
 
 **Privacy-first campus payments on Quai Network.**
 
-QiPay makes everyday digital payments as simple as cash — and as private as
+QiCash makes everyday digital payments as simple as cash — and as private as
 cash — for students and small vendors on African campuses. A student scans a
 vendor's QR code, pays in **native QI**, and the sale is done. Nobody —
 neither the network nor an onlooker — can see *who bought what, for how much,
 from whom*.
 
-The privacy is not an "extra layer bolted on." It is the product. QiPay is
+The privacy is not an "extra layer bolted on." It is the product. QiCash is
 built around QI's cash-like properties (UTXO ledger, fixed denominations,
 prohibition of address reuse) and turns them into a QR checkout that hides the
 *content* of every transaction from the public ledgers that settle it.
@@ -51,7 +51,7 @@ There is a gap between cash (private, simple, ubiquitous) and digital payments
 
 ## The experience
 
-**Student:** open QiPay → select the campus item → scan the vendor's QR → pay →
+**Student:** open QiCash → select the campus item → scan the vendor's QR → pay →
 confirmed. **Vendor:** create a payment request → display the QR → detect the
 payment → complete the sale.
 
@@ -61,17 +61,17 @@ interface.
 ## Why QI and Quai Network
 
 Quai describes QI as a UTXO-based ledger with **fixed denominations** and
-**restrictions on address reuse**, giving it cash-like privacy. QiPay converts
+**restrictions on address reuse**, giving it cash-like privacy. QiCash converts
 those protocol-level properties into a practical payment experience:
 
-| Conventional blockchain payment | QiPay using QI on Quai |
+| Conventional blockchain payment | QiCash using QI on Quai |
 |---------------------------------|------------------------|
 | Public addresses and activity are linkable, especially with address reuse | QI's design prohibits address reuse, supporting a cash-like privacy model |
 | Privacy requires extra application or protocol layers | Privacy-oriented transaction behavior is part of QI's design |
 | Users must understand wallets, addresses, networks, gas | A familiar QR checkout handles everything underneath |
 | The blockchain is a settlement rail | The QI privacy model *is* the value proposition |
 
-This "privacy by asset design" is what makes QiPay different from yet another
+This "privacy by asset design" is what makes QiCash different from yet another
 crypto payments wrapper.
 
 ---
@@ -85,7 +85,7 @@ needs to be* and *invisible everywhere else*.
    The vendor's app builds a payment request containing the secret values —
    the amount, a *fresh* Qi payout address (used once, never again), a random
    salt of at least 128 bits, and an expiry — then hashes the whole thing and
-   publishes only the 32-byte **commitment** to the `QiPayPaymentHub`
+   publishes only the 32-byte **commitment** to the `QiCashPaymentHub`
    (`createInvoice`). The plaintext never touches the chain.
 
 2. **The QR code is the plaintext.**
@@ -149,7 +149,7 @@ computationally infeasible. **The salt is the lock.** (See
 
 ### Why payments cannot be linked together
 
-QI forbids address reuse, and QiPay generates a **fresh payout address per
+QI forbids address reuse, and QiCash generates a **fresh payout address per
 invoice** on the vendor side. Two payments cannot be joined by a shared
 address — a series of Indomie purchases looks like cash from a new pocket to
 a new pocket every morning, not a pattern.
@@ -175,9 +175,9 @@ the QR is the only place the preimage ever exists.
 Qicash/
 ├── contracts/                 # Smart contracts + tests (Hardhat, Solidity 0.8.20)
 │   ├── contracts/
-│   │   ├── QiPayPaymentHub.sol        # Invoices, verification, attestation, disputes
-│   │   ├── QiPayVendorRegistry.sol    # Root of trust: vendor whitelist + attestor keys
-│   │   ├── access/QiPayAccessControl.sol  # Roles, admin handover, pause
+│   │   ├── QiCashPaymentHub.sol        # Invoices, verification, attestation, disputes
+│   │   ├── QiCashVendorRegistry.sol    # Root of trust: vendor whitelist + attestor keys
+│   │   ├── access/QiCashAccessControl.sol  # Roles, admin handover, pause
 │   │   ├── libraries/QuaiAddress.sol  # Quai shard / ledger-flag validation
 │   │   └── interfaces/                # Consumable read surfaces
 │   └── test/                  # 187 tests, incl. JS↔Solidity hash parity
@@ -189,9 +189,9 @@ Qicash/
 
 | Contract | Responsibilities |
 |----------|------------------|
-| `QiPayPaymentHub` | Publishes invoice commitments, serves `verifyPaymentRequest` verdicts, records settlement attestations, runs the dispute lifecycle |
-| `QiPayVendorRegistry` | Onboards vendors, binds attestor keys (one key = one vendor), suspend / revoke / rotate, metadata hashes only |
-| `QiPayAccessControl` | Non-hierarchical roles, two-step admin handover, last-admin guard, pausable |
+| `QiCashPaymentHub` | Publishes invoice commitments, serves `verifyPaymentRequest` verdicts, records settlement attestations, runs the dispute lifecycle |
+| `QiCashVendorRegistry` | Onboards vendors, binds attestor keys (one key = one vendor), suspend / revoke / rotate, metadata hashes only |
+| `QiCashAccessControl` | Non-hierarchical roles, two-step admin handover, last-admin guard, pausable |
 | `QuaiAddress` | Rejects zero, wrong-ledger or wrong-shard addresses before value can be sent to them |
 
 > **These contracts never hold or move value** — native QI cannot be received
@@ -248,7 +248,7 @@ off-chain, cancel the invoice on-chain, and the student would have **zero
 on-chain recourse** — `Cancelled` was not disputable.
 
 **The fix.** `openDispute` now accepts `Cancelled` invoices
-(`QiPayPaymentHub.sol`). A cancellation no longer erases the receipt — it
+(`QiCashPaymentHub.sol`). A cancellation no longer erases the receipt — it
 simply *starts the dispute clock* (anchored at the cancellation time). A
 student who was paid-and-cancelled can open a dispute exactly like a student
 who was paid-and-ignored. The honest cost is small and deliberate: an arbiter
@@ -256,7 +256,7 @@ may occasionally have to establish whether a payment on a cancelled invoice
 actually occurred.
 
 **The test.** "THE FIX: a vendor who cancels after being paid cannot escape a
-dispute" (`test/QiPayPaymentHub.test.js`) — cancels, then disputes, then
+dispute" (`test/QiCashPaymentHub.test.js`) — cancels, then disputes, then
 asserts the invoice reached `Disputed`.
 
 ### 2. Unverifiable expiry (medium, fixed)
@@ -292,7 +292,7 @@ against that same vendor (`ArbiterIsComplainant`, `ArbiterRepresentsVendor`).
 ### 5. Missing test coverage for the core contract (process, fixed)
 
 The hub — the most important contract — had no test file of its own, only a
-3-line smoke test. A dedicated `test/QiPayPaymentHub.test.js` now exercises
+3-line smoke test. A dedicated `test/QiCashPaymentHub.test.js` now exercises
 the full state machine: the verification verdict matrix, all three dispute
 windows (expiry / settlement / cancellation anchors), pause semantics,
 arbiter conflicts, arbitration timeouts, vendor stats, and the privacy surface

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "next": "16.3.0",
+    "quais": "^1.0.0-alpha.56",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
